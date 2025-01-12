@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Popup Example</title>
+  <style>
+    /* Styling for the top bar */
+    .top-bar {
+      position: relative;
+      width: 100%;
+      background-color: #000; /* اللون الأسود */
+      text-align: center;
+      padding: 15px 0;
+      z-index: 9999;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .top-bar button {
+      background-color: white; /* زر باللون الأبيض */
+      color: black; /* النص داخل الزر باللون الأسود */
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px; /* حجم خط مناسب للزر */
+      font-family: Arial, sans-serif;
+      cursor: pointer;
+    }
+
+    .top-bar button:hover {
+      background-color: #e6e6e6; /* لون عند التمرير بالماوس */
+    }
+
+    /* Styling for the popup */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      transition: opacity 0.3s ease; /* تأثير لطيف عند الإخفاء */
+    }
+
+    .popup {
+      background: black; /* لون النافذة أسود */
+      padding: 20px;
+      border-radius: 5px;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+      color: white; /* النص داخل النافذة أبيض */
+      font-family: Arial, sans-serif;
+    }
+
+    .popup img {
+      width: 100%; /* عرض الصورة بالكامل */
+      height: auto; /* الحفاظ على النسب */
+      margin-bottom: 20px; /* فاصل بين الصورة والنص */
+      border-radius: 5px; /* حواف ناعمة للصورة */
+    }
+
+    .popup h3 {
+      font-size: 24px; /* حجم العنوان كبير */
+      margin-bottom: 20px; /* فاصل بين العنوان والحقول */
+    }
+
+    .popup label {
+      font-size: 18px; /* حجم النص فوق الحقول */
+      display: block;
+      text-align: left; /* النص بمحاذاة اليسار */
+      margin-bottom: 8px; /* فاصل بين النص والحقول */
+      color: white;
+      font-weight: bold;
+    }
+
+    .popup input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px; /* مسافة بين الحقول */
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      color: black; /* النص داخل الحقول */
+    }
+
+    .popup .error {
+      color: red;
+      font-size: 14px;
+      margin-bottom: 15px;
+      text-align: left;
+      display: none; /* الخطأ غير مرئي في البداية */
+    }
+
+    .popup button {
+      background-color: white;
+      color: black;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px; /* مسافة بين الحقول والزر */
+    }
+
+    .popup button:hover {
+      background-color: #e6e6e6;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <button onclick="openPopup()">GET 5% OFF ON YOUR FIRST ORDER</button>
+  </div>
+
+  <!-- First Popup -->
+  <div class="popup-overlay" id="popupOverlay" onclick="closePopup(event)">
+    <div class="popup" onclick="stopPropagation(event)">
+      <img src="https://i.ibb.co/zPLLJvp/image.png" alt="Brand Logo"> <!-- صورة العلامة التجارية -->
+      <h3>5% discount on the first order</h3>
+      <div>
+        <label for="name">Name</label>
+        <input type="text" id="name" placeholder="Your Name">
+        <div class="error" id="nameError">Please write your name</div>
+      </div>
+      <div>
+        <label for="phone">WhatsApp Number</label>
+        <input type="text" id="phone" placeholder="WhatsApp Number" oninput="validatePhone()">
+        <div class="error" id="phoneError">The phone number must be 11 digits.</div>
+      </div>
+      <button onclick="submitForm()">Get Coupon</button>
+    </div>
+  </div>
+
+  <!-- Thank You Popup -->
+  <div class="popup-overlay" id="thankYouPopup" onclick="closePopup(event)">
+    <div class="popup thank-you-popup" onclick="stopPropagation(event)">
+      <h3>Thank you!</h3>
+      <p>Your coupon code is: <strong id="couponCode">WOODSY5</strong></p>
+      <button class="copy-btn" id="copyBtn" onclick="copyCoupon()">Copy Coupon</button>
+    </div>
+  </div>
+
+  <script>
+    // Open the popup
+    function openPopup() {
+      document.getElementById('popupOverlay').style.display = 'flex';
+    }
+
+    // Automatically show popup on page load
+    window.onload = function () {
+      openPopup();
+    };
+
+    // Close the popup when clicking outside
+    function closePopup(event) {
+      const overlay = event.currentTarget;
+      overlay.style.display = 'none';
+    }
+
+    // Prevent closing popup when clicking inside
+    function stopPropagation(event) {
+      event.stopPropagation();
+    }
+
+    // Validate phone number
+    function validatePhone() {
+      const phone = document.getElementById('phone').value.trim();
+      const phoneError = document.getElementById('phoneError');
+      if (phone.length !== 11 || !/^\d+$/.test(phone)) {
+        phoneError.style.display = 'block';
+      } else {
+        phoneError.style.display = 'none';
+      }
+    }
+
+    // Submit the form and validate
+    function submitForm() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const nameError = document.getElementById('nameError');
+
+      if (!name) {
+        nameError.style.display = 'block';
+        return;
+      } else {
+        nameError.style.display = 'none';
+      }
+
+      if (phone.length !== 11 || !/^\d+$/.test(phone)) {
+        document.getElementById('phoneError').style.display = 'block';
+        return;
+      } else {
+        document.getElementById('phoneError').style.display = 'none';
+      }
+
+      // Send data to Google Apps Script
+      fetch('https://script.google.com/macros/s/AKfycbxGGKdfMI_iviOIYS50HpjEVdjiSxy81SD-ecZPVah1U4KdMaQRvFp133aRG0NBJtjJXw/exec', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.success) {
+            document.getElementById('popupOverlay').style.display = 'none';
+            document.getElementById('thankYouPopup').style.display = 'flex';
+            document.getElementById('couponCode').textContent = data.coupon;
+          } else {
+            alert('Error: ' + data.message);
+          }
+        })
+        .catch((error) => alert('Error: ' + error.message));
+    }
+
+    // Copy coupon code and update text
+    function copyCoupon() {
+      const couponCode = document.getElementById('couponCode').textContent;
+      navigator.clipboard.writeText(couponCode).then(() => {
+        const copyBtn = document.getElementById('copyBtn');
+        copyBtn.textContent = 'Coupon copied';
+        setTimeout(() => {
+          document.getElementById('thankYouPopup').style.display = 'none';
+        }, 1000); // Close popup after 1 second
+      });
+    }
+  </script>
+</body>
+</html>
